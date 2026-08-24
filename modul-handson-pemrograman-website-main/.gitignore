@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.env
+.env.*
+*.log
+.DS_Store
+
+# Ignore modul 02 sampai 11
+02*
+03*
+04*
+05*
+06*
+07*
+08*
+09*
+10*
+11*
