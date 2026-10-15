@@ -1,0 +1,88 @@
+/* ==========================================================================
+   1. CSS Reset & Global Layout Variables
+   ========================================================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Outfit', 'Segoe UI', Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #212529;
+}
+
+/* ==========================================================================
+   2. Flexbox Header Navigation
+   ========================================================================== */
+.main-nav {
+    display: flex;
+    justify-content: space-between; /* Mendistribusikan logo ke kiri dan menu ke kanan */
+    align-items: center; /* Menyejajarkan item secara vertikal di tengah */
+    background-color: #0b2265;
+    padding: 15px 30px;
+    color: #ffffff;
+}
+
+.main-nav__menu {
+    display: flex;
+    list-style: none;
+    gap: 20px; /* Memberikan jarak antar tautan menu secara konstan */
+}
+
+.main-nav__link {
+    color: #b0c4de;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.main-nav__link:hover {
+    color: #ffffff;
+}
+
+/* ==========================================================================
+   3. CSS Grid Macro Layout (Desktop First/Responsive Wrapper)
+   ========================================================================== */
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 1fr; /* Satu kolom penuh secara default (Mobile View) */
+    gap: 24px;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Responsive Breakpoint: Layar Lebar (Komputer/Tablet Desktop) */
+@media (min-width: 768px) {
+    .dashboard-container {
+        /* Membagi ruang menjadi 3 kolom: kolom kiri untuk sidebar (1 bagian), kanan untuk konten utama (3 bagian) */
+        grid-template-columns: 250px 1fr;
+        grid-template-areas: 
+            "sidebar main-content";
+    }
+}
+
+.dashboard-sidebar {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.dashboard-main {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ==========================================================================
+   4. CSS Grid Micro Layout (Gallery/Cards Grid)
+   ========================================================================== */
+.cards-grid {
+    display: grid;
+    /* Membuat kolom otomatis responsif tanpa query media menggunakan repeat & minmax */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
