@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator IPK React JS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Memuat Pustaka React & Babel Transpiler via CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-light p-5">
+
+    <div id="root">
+        <!-- React akan memasang aplikasinya di dalam elemen ini -->
+    </div>
+
+    <!-- Script Utama Bertipe text/babel agar diparsing oleh Babel Standalone -->
+    <script type="text/babel">
+        "use strict";
+        
+        const { useState } = React;
+
+        // 1. Sub-Komponen: Baris Input Mata Kuliah (Form Component)
+        function CourseForm({ onAddCourse }) {
+            const [name, setName] = useState("");
+            const [grade, setGrade] = useState("A");
+            const [sks, setSks] = useState(3);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (!name.trim()) return;
+
+                // Kirim data ke induk via callback prop
+                onAddCourse({ name, grade, sks: parseInt(sks, 10) });
+                setName(""); // Reset input nama
+            };
+
+            return (
+                <form onSubmit={handleSubmit} className="row g-3 mb-4">
+                    <div className="col-md-5">
+                        <input type="text" className="form-control" placeholder="Nama Mata Kuliah..." value={name} onChange={(e) => setName(e.target.value)} required />
+                    </div>
+                    <div className="col-md-3">
+                        <select className="form-select" value={grade} onChange={(e) => setGrade(e.target.value)}>
+                            <option value="A">Nilai A (4.0)</option>
+                            <option value="B">Nilai B (3.0)</option>
+                            <option value="C">Nilai C (2.0)</option>
+                            <option value="D">Nilai D (1.0)</option>
+                        </select>
+                    </div>
+                    <div className="col-md-2">
+                        <select className="form-select" value={sks} onChange={(e) => setSks(e.target.value)}>
+                            <option value="1">1 SKS</option>
+                            <option value="2">2 SKS</option>
+                            <option value="3">3 SKS</option>
+                            <option value="4">4 SKS</option>
+                        </select>
+                    </div>
+                    <div className="col-md-2">
+                        <button type="submit" className="btn btn-success w-100">Tambah</button>
+                    </div>
+                </form>
+            );
+        }
+
+        // 2. Sub-Komponen: Tabel Daftar Kuliah (List Component)
+        function CourseList({ courses, onDeleteCourse }) {
+            return (
+                <table className="table table-striped table-bordered align-middle">
+                    <thead>
+                        <tr>
+                            <th>Mata Kuliah</th>
+                            <th>Nilai</th>
+                            <th>SKS</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {courses.length === 0 ? (
+                            <tr>
+                                <td colSpan="4" className="text-center text-muted">Belum ada mata kuliah yang ditambahkan.</td>
+                            </tr>
+                        ) : (
+                            courses.map((course, index) => (
+                                <tr key={index}>
+                                    <td>{course.name}</td>
+                                    <td>{course.grade}</td>
+                                    <td>{course.sks}</td>
+                                    <td>
+                                        <button className="btn btn-danger btn-sm" onClick={() => onDeleteCourse(index)}>Hapus</button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            );
+        }
+
+        // 3. Sub-Komponen: Rangkuman Statistik (Statistics Component)
+        function GPAStatistics({ courses }) {
+            // Konversi nilai huruf ke bobot angka
+            const gradePoints = { A: 4.0, B: 3.0, C: 2.0, D: 1.0 };
+
+            const totalSks = courses.reduce((acc, c) => acc + c.sks, 0);
+            const totalPoints = courses.reduce((acc, c) => acc + (gradePoints[c.grade] * c.sks), 0);
+            const gpa = totalSks > 0 ? (totalPoints / totalSks).toFixed(2) : "0.00";
+
+            return (
+                <div className="row g-3">
+                    <div className="col-6">
+                        <div className="p-3 bg-light rounded text-center border">
+                            <span className="d-block text-muted small">Total SKS</span>
+                            <strong>{totalSks} SKS</strong>
+                        </div>
+                    </div>
+                    <div className="col-6">
+                        <div className="p-3 bg-primary text-white rounded text-center border">
+                            <span className="d-block text-white-50 small">Indeks Prestasi (IP)</span>
+                            <strong>{gpa}</strong>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // 4. Komponen Utama Pengendali Aplikasi (Root Component)
+        function App() {
+            // State utama menyimpan daftar mata kuliah
+            const [courses, setCourses] = useState([
+                { name: "Pemrograman Web", grade: "A", sks: 3 },
+                { name: "Struktur Data & Algoritma", grade: "B", sks: 4 }
+            ]);
+
+            const handleAddCourse = (newCourse) => {
+                // Gunakan spread operator untuk merubah state secara immutable
+                setCourses([...courses, newCourse]);
+            };
+
+            const handleDeleteCourse = (indexToDelete) => {
+                // Saring data baru dengan mengecualikan indeks target
+                const updatedCourses = courses.filter((_, index) => index !== indexToDelete);
+                setCourses(updatedCourses);
+            };
+
+            return (
+                <div className="container" style={{ maxWidth: "700px" }}>
+                    <div className="card shadow-sm">
+                        <div className="card-header bg-dark text-white text-center py-3">
+                            <h1 className="h4 mb-0">Platform Kalkulator IPK Mahasiswa</h1>
+                        </div>
+                        <div className="card-body p-4">
+                            
+                            {/* Memanggil Sub-Komponen Form dan memasang callback handler */}
+                            <CourseForm onAddCourse={handleAddCourse} />
+                            
+                            <h2 className="h5 mb-3 border-bottom pb-2">Daftar Pengambilan Mata Kuliah</h2>
+                            <CourseList courses={courses} onDeleteCourse={handleDeleteCourse} />
+                            
+                            <h2 className="h5 my-3 border-bottom pb-2">Analisis Hasil Studi</h2>
+                            <GPAStatistics courses={courses} />
+                            
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // 5. Render Aplikasi React ke Real DOM Root
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<App />);
+    </script>
+</body>
+</html>

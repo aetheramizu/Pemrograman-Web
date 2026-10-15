@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5 Canvas 2D & Animation Loop Lab</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #myCanvas {
+            border: 2px solid #0B2265;
+            background-color: #0B2265;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body class="bg-light p-4">
+
+<div class="container" style="max-width: 800px;">
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white text-center py-3">
+            <h1 class="h4 mb-0">HTML5 Canvas 2D API & requestAnimationFrame Lab</h1>
+        </div>
+        <div class="card-body p-4 text-center">
+            <p class="text-muted">Demonstrasi render grafis raster 2D dinamis & siklus animasi 60 FPS menggunakan Canvas API.</p>
+            
+            <canvas id="myCanvas" width="700" height="350" class="img-fluid mb-3"></canvas>
+
+            <div class="d-flex justify-content-center gap-2 mb-3">
+                <button id="btnToggle" class="btn btn-primary">Jeda Animasi</button>
+                <button id="btnAddNode" class="btn btn-success">Tambah Simpul</button>
+                <button id="btnReset" class="btn btn-outline-secondary">Reset Kanvas</button>
+            </div>
+
+            <div id="statusText" class="small text-secondary">
+                Jumlah Simpul Aktif: <strong id="nodeCount">20</strong> | Status Loop: <span class="badge bg-success" id="loopBadge">Berjalan (60 FPS)</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    "use strict";
+
+    const canvas = document.getElementById("myCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let animationId = null;
+    let isRunning = true;
+
+    // Array objek simpul (nodes)
+    let nodes = [];
+
+    function initNodes(count = 20) {
+        nodes = [];
+        for (let i = 0; i < count; i++) {
+            nodes.push({
+                x: Math.random() * (canvas.width - 40) + 20,
+                y: Math.random() * (canvas.height - 40) + 20,
+                vx: (Math.random() - 0.5) * 2.5,
+                vy: (Math.random() - 0.5) * 2.5,
+                radius: Math.random() * 4 + 4,
+                color: Math.random() > 0.5 ? "#00FFF0" : "#39FF14"
+            });
+        }
+        document.getElementById("nodeCount").innerText = nodes.length;
+    }
+
+    // Fungsi Render Frame (Animation Loop)
+    function drawFrame() {
+        // 1. Clear Kanvas
+        ctx.fillStyle = "#0B2265";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 2. Gambar Kisi Blueprint Canvas
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+        ctx.lineWidth = 1;
+        for (let x = 0; x < canvas.width; x += 25) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, canvas.height);
+            ctx.stroke();
+        }
+        for (let y = 0; y < canvas.height; y += 25) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(canvas.width, y);
+            ctx.stroke();
+        }
+
+        // 3. Update Koordinat & Gambar Vektor Hubungan Antar Simpul
+        for (let i = 0; i < nodes.length; i++) {
+            const n1 = nodes[i];
+
+            // Perbarui posisi berdasarkan kecepatan
+            n1.x += n1.vx;
+            n1.y += n1.vy;
+
+            // Pantulan dinding batas kanvas
+            if (n1.x - n1.radius <= 0 || n1.x + n1.radius >= canvas.width) n1.vx *= -1;
+            if (n1.y - n1.radius <= 0 || n1.y + n1.radius >= canvas.height) n1.vy *= -1;
+
+            // Sambungkan garis vektor jika jarak dekat
+            for (let j = i + 1; j < nodes.length; j++) {
+                const n2 = nodes[j];
+                const dx = n1.x - n2.x;
+                const dy = n1.y - n2.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 100) {
+                    ctx.strokeStyle = `rgba(0, 255, 240, ${1 - dist / 100})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(n1.x, n1.y);
+                    ctx.lineTo(n2.x, n2.y);
+                    ctx.stroke();
+                }
+            }
+
+            // Gambar lingkaran simpul dengan Canvas Arc API
+            ctx.fillStyle = n1.color;
+            ctx.beginPath();
+            ctx.arc(n1.x, n1.y, n1.radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // 4. Minta Frame Berikutnya (requestAnimationFrame)
+        if (isRunning) {
+            animationId = requestAnimationFrame(drawFrame);
+        }
+    }
+
+    // Event Listener Kontrol
+    document.getElementById("btnToggle").addEventListener("click", () => {
+        isRunning = !isRunning;
+        const btn = document.getElementById("btnToggle");
+        const badge = document.getElementById("loopBadge");
+
+        if (isRunning) {
+            btn.innerText = "Jeda Animasi";
+            btn.className = "btn btn-primary";
+            badge.innerText = "Berjalan (60 FPS)";
+            badge.className = "badge bg-success";
+            drawFrame();
+        } else {
+            btn.innerText = "Lanjutkan Animasi";
+            btn.className = "btn btn-warning";
+            badge.innerText = "Dijeda";
+            badge.className = "badge bg-secondary";
+            if (animationId) cancelAnimationFrame(animationId);
+        }
+    });
+
+    document.getElementById("btnAddNode").addEventListener("click", () => {
+        nodes.push({
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            vx: (Math.random() - 0.5) * 3,
+            vy: (Math.random() - 0.5) * 3,
+            radius: 6,
+            color: "#39FF14"
+        });
+        document.getElementById("nodeCount").innerText = nodes.length;
+    });
+
+    document.getElementById("btnReset").addEventListener("click", () => {
+        initNodes(20);
+    });
+
+    // Inisialisasi Pertama
+    initNodes(20);
+    drawFrame();
+</script>
+</body>
+</html>

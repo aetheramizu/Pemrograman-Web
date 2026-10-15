@@ -1,0 +1,12 @@
+/* Global Styles for Modul 11 React & Canvas Application */
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+}
