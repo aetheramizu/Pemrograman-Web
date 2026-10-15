@@ -1,0 +1,30 @@
+[
+    {
+        "kode": "INF302",
+        "nama": "Pemrograman Web",
+        "sks": 3,
+        "semester": 4,
+        "dosen": "Prof. Saharuddin"
+    },
+    {
+        "kode": "INF301",
+        "nama": "Struktur Data & Algoritma",
+        "sks": 4,
+        "semester": 3,
+        "dosen": "Dr. Armin"
+    },
+    {
+        "kode": "INF401",
+        "nama": "Kecerdasan Buatan",
+        "sks": 3,
+        "semester": 4,
+        "dosen": "Dr. Indrabayu"
+    },
+    {
+        "kode": "INF202",
+        "nama": "Arsitektur Komputer",
+        "sks": 3,
+        "semester": 2,
+        "dosen": "Prof. Elyas"
+    }
+]
