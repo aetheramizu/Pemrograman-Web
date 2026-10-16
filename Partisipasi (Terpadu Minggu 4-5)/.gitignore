@@ -1,0 +1,9 @@
+# Junk OS / editor
+.DS_Store
+Thumbs.db
+
+# Metadata macOS dari berkas asli yang diterima
+__MACOSX/
+
+# Alat & berkas kerja lokal (PHP portable, skrip uji, hasil pengujian)
+_tools/
